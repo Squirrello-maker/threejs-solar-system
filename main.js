@@ -76,12 +76,12 @@ var buildSolarSystem = function buildSolarSystem() {
   var camera = new three__WEBPACK_IMPORTED_MODULE_3__.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 12000);
   var renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  out.appendChild(renderer.domElement);
-  var controls = new three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_0__.OrbitControls(camera, renderer.domElement); // const FPPContrls = new FirstPersonControls(camera,renderer.domElement);
+  out.appendChild(renderer.domElement); // const controls = new OrbitControls(camera, renderer.domElement);
 
-  var clock = new three__WEBPACK_IMPORTED_MODULE_3__.Clock(); // FPPContrls.movementSpeed = 20;
-  // FPPContrls.lookSpeed = .2;
-  //load all textures
+  var FPPContrls = new three_examples_jsm_controls_FirstPersonControls_js__WEBPACK_IMPORTED_MODULE_1__.FirstPersonControls(camera, renderer.domElement);
+  var clock = new three__WEBPACK_IMPORTED_MODULE_3__.Clock();
+  FPPContrls.movementSpeed = 20;
+  FPPContrls.lookSpeed = .2; //load all textures
 
   var loader = new three__WEBPACK_IMPORTED_MODULE_3__.TextureLoader();
   var sunTexture = loader.load('./textures/2k_sun.jpg');
@@ -97,8 +97,9 @@ var buildSolarSystem = function buildSolarSystem() {
   var neptuneTexture = loader.load('./textures/2k_neptune.jpg'); //create sun
 
   var sunGeo = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(80);
-  var sunMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
-    map: sunTexture
+  var sunMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshBasicMaterial({
+    map: sunTexture,
+    emmisive: 0xe8aa54
   });
   var sun = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(sunGeo, sunMat);
   sun.position.x = -30;
@@ -107,14 +108,10 @@ var buildSolarSystem = function buildSolarSystem() {
   var cubeLoader = new three__WEBPACK_IMPORTED_MODULE_3__.CubeTextureLoader();
   var bgTexture = cubeLoader.load(['./textures/2k_stars_milky_way_Right.bmp', './textures/2k_stars_milky_way_Left.bmp', './textures/2k_stars_milky_way_Top.bmp', './textures/2k_stars_milky_way_Bottom.bmp', './textures/2k_stars_milky_way_Front.bmp', './textures/2k_stars_milky_way_Back.bmp']);
   scene.background = bgTexture;
-  camera.position.z = 5; // FPPContrls.update(clock.getDelta());
-  //create temporary ambient light
+  camera.position.z = 5;
+  camera.position.x = 80; //create temporary ambient light
 
   var Plight = new three__WEBPACK_IMPORTED_MODULE_3__.PointLight(0xffffff, 1, 12000);
-  var Dlight = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff, 1);
-  var DlightHelp = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLightHelper(Dlight, 50, 0xff00ff);
-  scene.add(Dlight);
-  scene.add(DlightHelp);
   scene.add(Plight); //function to create celestial
 
   var createCelestial = function createCelestial(size, texture) {
@@ -151,7 +148,7 @@ var buildSolarSystem = function buildSolarSystem() {
     saturnRingGEO.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
   }
 
-  var saturnRingMAT = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
+  var saturnRingMAT = new three__WEBPACK_IMPORTED_MODULE_3__.MeshBasicMaterial({
     map: saturnRingsTexture,
     transparent: true,
     side: three__WEBPACK_IMPORTED_MODULE_3__.DoubleSide
@@ -172,14 +169,26 @@ var buildSolarSystem = function buildSolarSystem() {
   scene.add(earthGroup); //initial values for periods
 
   var periods = {
-    pMer: 0,
-    pVen: 0,
-    pEarth: 0,
-    pMars: 0,
-    pJupiter: 0,
-    pSaturn: 0,
-    pUranus: 0,
-    pNeptune: 0
+    circulationPeriods: {
+      pMer: 0,
+      pVen: 0,
+      pEarth: 0,
+      pMars: 0,
+      pJupiter: 0,
+      pSaturn: 0,
+      pUranus: 0,
+      pNeptune: 0
+    },
+    rotationPeriods: {
+      pMer: 0.00035,
+      pVen: 0.00005,
+      pEarth: 0.001,
+      pMars: 0.00095,
+      pJupiter: 0.002,
+      pSaturn: 0.0015,
+      pUranus: 0.0012,
+      pNeptune: 0.0013
+    }
   }; //function to circular movement
 
   var circularMovement = function circularMovement(celestial) {
@@ -198,10 +207,10 @@ var buildSolarSystem = function buildSolarSystem() {
   }; //check full movement around the circle and restore to 0
 
 
-  var checkFullPeriod = function checkFullPeriod() {
-    for (var key in periods) {
-      if (periods[key] >= 6.28) {
-        periods[key] = 0;
+  var checkFullPeriod = function checkFullPeriod(periodsObj) {
+    for (var key in periodsObj) {
+      if (periodsObj[key] >= 6.28) {
+        periodsObj[key] = 0;
       }
     }
   };
@@ -215,31 +224,30 @@ var buildSolarSystem = function buildSolarSystem() {
       t = 0;
     }
 
-    checkFullPeriod();
+    checkFullPeriod(periods.circulationPeriods);
     saturnRingMESH.rotation.z += 0.1;
     t += 0.01;
-    periods.pMer += 0.002;
-    periods.pVen += 0.000584;
-    periods.pEarth += 0.000365; //1 year
+    periods.circulationPeriods.pMer += 0.002;
+    periods.circulationPeriods.pVen += 0.000584;
+    periods.circulationPeriods.pEarth += 0.000365; //1 year
 
-    periods.pMars += 0.000182;
-    periods.pJupiter += 0.000047;
-    periods.pSaturn += 0.000022;
-    periods.pUranus += 0.00001;
-    periods.pNeptune += 0.000001;
-    sun.rotation.y += 0.001; // FPPContrls.update(clock.getDelta());
-
-    controls.update();
-    circularMovement(mercury, 0.00085, 150, periods.pMer);
-    circularMovement(venus, 0.00085, 280, periods.pVen);
+    periods.circulationPeriods.pMars += 0.000182;
+    periods.circulationPeriods.pJupiter += 0.000047;
+    periods.circulationPeriods.pSaturn += 0.000022;
+    periods.circulationPeriods.pUranus += 0.00001;
+    periods.circulationPeriods.pNeptune += 0.000001;
+    sun.rotation.y += 0.001;
+    FPPContrls.update(clock.getDelta());
+    circularMovement(mercury, periods.rotationPeriods.pMer, 150, periods.circulationPeriods.pMer);
+    circularMovement(venus, periods.rotationPeriods.pVen, 280, periods.circulationPeriods.pVen);
+    circularMovement(earthGroup, periods.rotationPeriods.pEarth, 390, periods.circulationPeriods.pEarth);
+    circularMovement(mars, periods.rotationPeriods.pMars, 585, periods.circulationPeriods.pMars);
+    circularMovement(jupiter, periods.rotationPeriods.pJupiter, 1950, periods.circulationPeriods.pJupiter);
+    circularMovement(saturnGroup, periods.rotationPeriods.pSaturn, 3705, periods.circulationPeriods.pSaturn);
+    circularMovement(uranus, periods.rotationPeriods.pUranus, 7410, periods.circulationPeriods.pUranus);
+    circularMovement(neptune, periods.rotationPeriods.pNeptune, 11700, periods.circulationPeriods.pNeptune);
     earthMoon.position.x = 10 * Math.cos(t) + 0;
     earthMoon.position.z = 10 * Math.sin(t) + 0;
-    circularMovement(earthGroup, 0.001, 390, periods.pEarth);
-    circularMovement(mars, 0.00085, 585, periods.pMars);
-    circularMovement(jupiter, 0.00085, 1950, periods.pJupiter);
-    circularMovement(saturnGroup, 0.00085, 3705, periods.pSaturn);
-    circularMovement(uranus, 0.00085, 7410, periods.pUranus);
-    circularMovement(neptune, 0.00085, 11700, periods.pNeptune);
     renderer.render(scene, camera);
   };
 
@@ -269,7 +277,7 @@ var buildSolarSystem = function buildSolarSystem() {
   }); //apply sound effects
 
   var btn = document.querySelector('.audioBTN');
-  var audioManager = new _audioManager__WEBPACK_IMPORTED_MODULE_2__["default"]('/sounds/ambient.mp3', '/sounds/impact.mp3'); // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
+  var audioManager = new _audioManager__WEBPACK_IMPORTED_MODULE_2__["default"]('./sounds/ambient.mp3', './sounds/impact.mp3'); // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
 
   btn.addEventListener('click', audioManager.playInteraction.bind(audioManager));
 };
