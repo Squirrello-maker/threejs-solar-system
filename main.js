@@ -59,45 +59,175 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "buildSolarSystem": () => (/* binding */ buildSolarSystem)
 /* harmony export */ });
-/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
 /* harmony import */ var three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three/examples/jsm/controls/OrbitControls.js */ "./node_modules/three/examples/jsm/controls/OrbitControls.js");
-/* harmony import */ var _audioManager__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./audioManager */ "./src/audioManager.js");
+/* harmony import */ var three_examples_jsm_controls_FirstPersonControls_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! three/examples/jsm/controls/FirstPersonControls.js */ "./node_modules/three/examples/jsm/controls/FirstPersonControls.js");
+/* harmony import */ var _audioManager__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./audioManager */ "./src/audioManager.js");
+
 
 
 
 var buildSolarSystem = function buildSolarSystem() {
   var out = document.querySelector('.WebGL_out');
-  var scene = new three__WEBPACK_IMPORTED_MODULE_2__.Scene();
-  var camera = new three__WEBPACK_IMPORTED_MODULE_2__.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-  var renderer = new three__WEBPACK_IMPORTED_MODULE_2__.WebGLRenderer();
+  var scene = new three__WEBPACK_IMPORTED_MODULE_3__.Scene();
+  var camera = new three__WEBPACK_IMPORTED_MODULE_3__.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 12000);
+  var renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setClearColor(0xffffff, 1);
   out.appendChild(renderer.domElement);
-  var controls = new three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_0__.OrbitControls(camera, renderer.domElement);
-  var sunGeo = new three__WEBPACK_IMPORTED_MODULE_2__.SphereGeometry();
-  var sunMat = new three__WEBPACK_IMPORTED_MODULE_2__.MeshBasicMaterial({
-    color: 0xc9cf1f
+  var controls = new three_examples_jsm_controls_OrbitControls_js__WEBPACK_IMPORTED_MODULE_0__.OrbitControls(camera, renderer.domElement); // const FPPContrls = new FirstPersonControls(camera,renderer.domElement);
+
+  var clock = new three__WEBPACK_IMPORTED_MODULE_3__.Clock(); // FPPContrls.movementSpeed = 20;
+  // FPPContrls.lookSpeed = .2;
+  //load all textures
+
+  var loader = new three__WEBPACK_IMPORTED_MODULE_3__.TextureLoader();
+  var sunTexture = loader.load('/textures/2k_sun.jpg');
+  var mercuryTexture = loader.load('/textures/2k_mercury.jpg');
+  var venusTexture = loader.load('/textures/2k_venus_atmosphere.jpg');
+  var earthTexture = loader.load('/textures/2k_earth_daymap.jpg');
+  var earthMoonTexture = loader.load('/textures/2k_moon.jpg');
+  var marsTexture = loader.load('/textures/2k_mars.jpg');
+  var jupiterTexture = loader.load('/textures/2k_jupiter.jpg');
+  var saturnTexture = loader.load('/textures/2k_saturn.jpg');
+  var saturnRingsTexture = loader.load('/textures/rings2.png');
+  var uranusTexture = loader.load('/textures/2k_uranus.jpg');
+  var neptuneTexture = loader.load('/textures/2k_neptune.jpg');
+  var sunGeo = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(80);
+  var sunMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
+    map: sunTexture
   });
-  var sun = new three__WEBPACK_IMPORTED_MODULE_2__.Mesh(sunGeo, sunMat);
+  var sun = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(sunGeo, sunMat);
+  sun.position.x = -30;
   scene.add(sun);
-  var loader = new three__WEBPACK_IMPORTED_MODULE_2__.TextureLoader();
-  loader.crossOrigin = '';
-  var earthTexture = loader.load('corgi.jpg');
-  console.log(earthTexture);
-  camera.position.z = 5;
-  controls.update();
-  var earthGeo = new three__WEBPACK_IMPORTED_MODULE_2__.SphereGeometry(2);
-  var earthMat = new three__WEBPACK_IMPORTED_MODULE_2__.MeshStandardMaterial({
-    map: earthTexture
-  });
-  var earth = new three__WEBPACK_IMPORTED_MODULE_2__.Mesh(earthGeo, earthMat);
+  var cubeLoader = new three__WEBPACK_IMPORTED_MODULE_3__.CubeTextureLoader();
+  var bgTexture = cubeLoader.load(['/textures/2k_stars_milky_way_Right.bmp', '/textures/2k_stars_milky_way_Left.bmp', '/textures/2k_stars_milky_way_Top.bmp', '/textures/2k_stars_milky_way_Bottom.bmp', '/textures/2k_stars_milky_way_Front.bmp', '/textures/2k_stars_milky_way_Back.bmp']);
+  scene.background = bgTexture;
+  camera.position.z = 5; // FPPContrls.update(clock.getDelta());
+
+  var light = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0xffffff, 1);
+  scene.add(light);
   scene.add(earth);
-  earth.position.x = 4;
+
+  var createCelestial = function createCelestial(size, texture) {
+    var celestialGEO = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(size);
+    var celestialMAT = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
+      map: texture
+    });
+    return new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(celestialGEO, celestialMAT);
+  };
+
+  var mercury = createCelestial(2.28, mercuryTexture);
+  var venus = createCelestial(5.64, venusTexture);
+  var earth = createCelestial(6, earthTexture);
+  var earthMoon = createCelestial(1, earthMoonTexture);
+  var mars = createCelestial(3.18, marsTexture);
+  var jupiter = createCelestial(66, jupiterTexture);
+  var saturn = createCelestial(54, saturnTexture);
+  var uranus = createCelestial(24, uranusTexture);
+  var neptune = createCelestial(18, neptuneTexture);
+  scene.add(mercury);
+  scene.add(venus); // scene.add(earth)
+
+  scene.add(mars);
+  scene.add(jupiter); // scene.add(saturn);
+
+  scene.add(uranus);
+  scene.add(neptune); //create rings for saturn
+
+  var saturnRingGEO = new three__WEBPACK_IMPORTED_MODULE_3__.RingBufferGeometry(3, 100, 64);
+  var pos = saturnRingGEO.attributes.position;
+  var v3 = new three__WEBPACK_IMPORTED_MODULE_3__.Vector3();
+
+  for (var i = 0; i < pos.count; i++) {
+    v3.fromBufferAttribute(pos, i);
+    saturnRingGEO.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1);
+  }
+
+  var saturnRingMAT = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
+    map: saturnRingsTexture,
+    transparent: true,
+    side: three__WEBPACK_IMPORTED_MODULE_3__.DoubleSide
+  });
+  var saturnRingMESH = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(saturnRingGEO, saturnRingMAT);
+  saturnRingMESH.rotation.x = Math.PI / 2;
+  saturnRingMESH.rotation.y = Math.PI / 12;
+  scene.add(saturnRingMESH);
+  var saturnGroup = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+  saturnGroup.add(saturn);
+  saturnGroup.add(saturnRingMESH);
+  scene.add(saturnGroup);
+  var earthGroup = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
+  earthGroup.add(earth);
+  earthGroup.add(earthMoon);
+  scene.add(earthGroup);
+  var periods = {
+    pMer: 0,
+    pVen: 0,
+    pEarth: 0,
+    pMars: 0,
+    pJupiter: 0,
+    pSaturn: 0,
+    pUranus: 0,
+    pNeptune: 0
+  };
+
+  var circularMovement = function circularMovement(celestial) {
+    var rotationPeriod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.001;
+    var distance = arguments.length > 2 ? arguments[2] : undefined;
+    var t = arguments.length > 3 ? arguments[3] : undefined;
+
+    if (celestial === venus) {
+      celestial.rotation.y -= rotationPeriod;
+    } else {
+      celestial.rotation.y += rotationPeriod;
+    }
+
+    celestial.position.x = distance * Math.cos(t) - 30;
+    celestial.position.z = distance * Math.sin(t) + 0;
+  };
+
+  var checkFullPeriod = function checkFullPeriod() {
+    for (var key in periods) {
+      if (periods[key] >= 6.28) {
+        periods[key] = 0;
+      }
+    }
+  };
+
+  var t = 0;
 
   var animate = function animate() {
     requestAnimationFrame(animate);
-    sun.rotation.y += 0.01;
+
+    if (t >= 6.28) {
+      t = 0;
+    }
+
+    checkFullPeriod();
+    saturnRingMESH.rotation.z += 0.1;
+    t += 0.01;
+    periods.pMer += 0.002;
+    periods.pVen += 0.000584;
+    periods.pEarth += 0.000365; //1 year
+
+    periods.pMars += 0.000182;
+    periods.pJupiter += 0.000047;
+    periods.pSaturn += 0.000022;
+    periods.pUranus += 0.00001;
+    periods.pNeptune += 0.000001;
+    sun.rotation.y += 0.001; // FPPContrls.update(clock.getDelta());
+
     controls.update();
+    circularMovement(mercury, 0.00085, 150, periods.pMer);
+    circularMovement(venus, 0.00085, 280, periods.pVen);
+    earthMoon.position.x = 10 * Math.cos(t) + 0;
+    earthMoon.position.z = 10 * Math.sin(t) + 0;
+    circularMovement(earthGroup, 0.001, 390, periods.pEarth);
+    circularMovement(mars, 0.00085, 585, periods.pMars);
+    circularMovement(jupiter, 0.00085, 1950, periods.pJupiter);
+    circularMovement(saturnGroup, 0.00085, 3705, periods.pSaturn);
+    circularMovement(uranus, 0.00085, 7410, periods.pUranus);
+    circularMovement(neptune, 0.00085, 11700, periods.pNeptune);
     renderer.render(scene, camera);
   };
 
@@ -107,9 +237,24 @@ var buildSolarSystem = function buildSolarSystem() {
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
+    FPPContrls.handleResize();
+  });
+  window.addEventListener('keydown', function (e) {
+    switch (e.key) {
+      case 'Shift':
+        FPPContrls.movementSpeed = 50;
+        break;
+    }
+  });
+  window.addEventListener('keyup', function (e) {
+    switch (e.key) {
+      case 'Shift':
+        FPPContrls.movementSpeed = 20;
+        break;
+    }
   });
   var btn = document.querySelector('.audioBTN');
-  var audioManager = new _audioManager__WEBPACK_IMPORTED_MODULE_1__["default"]('ambient.mp3', 'impact.mp3'); // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
+  var audioManager = new _audioManager__WEBPACK_IMPORTED_MODULE_2__["default"]('/sounds/ambient.mp3', '/sounds/impact.mp3'); // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
 
   btn.addEventListener('click', audioManager.playInteraction.bind(audioManager));
 };
@@ -50885,6 +51030,349 @@ if ( typeof window !== 'undefined' ) {
 		window.__THREE__ = REVISION;
 
 	}
+
+}
+
+
+
+
+/***/ }),
+
+/***/ "./node_modules/three/examples/jsm/controls/FirstPersonControls.js":
+/*!*************************************************************************!*\
+  !*** ./node_modules/three/examples/jsm/controls/FirstPersonControls.js ***!
+  \*************************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   "FirstPersonControls": () => (/* binding */ FirstPersonControls)
+/* harmony export */ });
+/* harmony import */ var three__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! three */ "./node_modules/three/build/three.module.js");
+
+
+const _lookDirection = new three__WEBPACK_IMPORTED_MODULE_0__.Vector3();
+const _spherical = new three__WEBPACK_IMPORTED_MODULE_0__.Spherical();
+const _target = new three__WEBPACK_IMPORTED_MODULE_0__.Vector3();
+
+class FirstPersonControls {
+
+	constructor( object, domElement ) {
+
+		if ( domElement === undefined ) {
+
+			console.warn( 'THREE.FirstPersonControls: The second parameter "domElement" is now mandatory.' );
+			domElement = document;
+
+		}
+
+		this.object = object;
+		this.domElement = domElement;
+
+		// API
+
+		this.enabled = true;
+
+		this.movementSpeed = 1.0;
+		this.lookSpeed = 0.005;
+
+		this.lookVertical = true;
+		this.autoForward = false;
+
+		this.activeLook = true;
+
+		this.heightSpeed = false;
+		this.heightCoef = 1.0;
+		this.heightMin = 0.0;
+		this.heightMax = 1.0;
+
+		this.constrainVertical = false;
+		this.verticalMin = 0;
+		this.verticalMax = Math.PI;
+
+		this.mouseDragOn = false;
+
+		// internals
+
+		this.autoSpeedFactor = 0.0;
+
+		this.mouseX = 0;
+		this.mouseY = 0;
+
+		this.moveForward = false;
+		this.moveBackward = false;
+		this.moveLeft = false;
+		this.moveRight = false;
+
+		this.viewHalfX = 0;
+		this.viewHalfY = 0;
+
+		// private variables
+
+		let lat = 0;
+		let lon = 0;
+
+		//
+
+		this.handleResize = function () {
+
+			if ( this.domElement === document ) {
+
+				this.viewHalfX = window.innerWidth / 2;
+				this.viewHalfY = window.innerHeight / 2;
+
+			} else {
+
+				this.viewHalfX = this.domElement.offsetWidth / 2;
+				this.viewHalfY = this.domElement.offsetHeight / 2;
+
+			}
+
+		};
+
+		this.onMouseDown = function ( event ) {
+
+			if ( this.domElement !== document ) {
+
+				this.domElement.focus();
+
+			}
+
+			if ( this.activeLook ) {
+
+				switch ( event.button ) {
+
+					case 0: this.moveForward = true; break;
+					case 2: this.moveBackward = true; break;
+
+				}
+
+			}
+
+			this.mouseDragOn = true;
+
+		};
+
+		this.onMouseUp = function ( event ) {
+
+			if ( this.activeLook ) {
+
+				switch ( event.button ) {
+
+					case 0: this.moveForward = false; break;
+					case 2: this.moveBackward = false; break;
+
+				}
+
+			}
+
+			this.mouseDragOn = false;
+
+		};
+
+		this.onMouseMove = function ( event ) {
+
+			if ( this.domElement === document ) {
+
+				this.mouseX = event.pageX - this.viewHalfX;
+				this.mouseY = event.pageY - this.viewHalfY;
+
+			} else {
+
+				this.mouseX = event.pageX - this.domElement.offsetLeft - this.viewHalfX;
+				this.mouseY = event.pageY - this.domElement.offsetTop - this.viewHalfY;
+
+			}
+
+		};
+
+		this.onKeyDown = function ( event ) {
+
+			switch ( event.code ) {
+
+				case 'ArrowUp':
+				case 'KeyW': this.moveForward = true; break;
+
+				case 'ArrowLeft':
+				case 'KeyA': this.moveLeft = true; break;
+
+				case 'ArrowDown':
+				case 'KeyS': this.moveBackward = true; break;
+
+				case 'ArrowRight':
+				case 'KeyD': this.moveRight = true; break;
+
+				case 'KeyR': this.moveUp = true; break;
+				case 'KeyF': this.moveDown = true; break;
+
+			}
+
+		};
+
+		this.onKeyUp = function ( event ) {
+
+			switch ( event.code ) {
+
+				case 'ArrowUp':
+				case 'KeyW': this.moveForward = false; break;
+
+				case 'ArrowLeft':
+				case 'KeyA': this.moveLeft = false; break;
+
+				case 'ArrowDown':
+				case 'KeyS': this.moveBackward = false; break;
+
+				case 'ArrowRight':
+				case 'KeyD': this.moveRight = false; break;
+
+				case 'KeyR': this.moveUp = false; break;
+				case 'KeyF': this.moveDown = false; break;
+
+			}
+
+		};
+
+		this.lookAt = function ( x, y, z ) {
+
+			if ( x.isVector3 ) {
+
+				_target.copy( x );
+
+			} else {
+
+				_target.set( x, y, z );
+
+			}
+
+			this.object.lookAt( _target );
+
+			setOrientation( this );
+
+			return this;
+
+		};
+
+		this.update = function () {
+
+			const targetPosition = new three__WEBPACK_IMPORTED_MODULE_0__.Vector3();
+
+			return function update( delta ) {
+
+				if ( this.enabled === false ) return;
+
+				if ( this.heightSpeed ) {
+
+					const y = three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.clamp( this.object.position.y, this.heightMin, this.heightMax );
+					const heightDelta = y - this.heightMin;
+
+					this.autoSpeedFactor = delta * ( heightDelta * this.heightCoef );
+
+				} else {
+
+					this.autoSpeedFactor = 0.0;
+
+				}
+
+				const actualMoveSpeed = delta * this.movementSpeed;
+
+				if ( this.moveForward || ( this.autoForward && ! this.moveBackward ) ) this.object.translateZ( - ( actualMoveSpeed + this.autoSpeedFactor ) );
+				if ( this.moveBackward ) this.object.translateZ( actualMoveSpeed );
+
+				if ( this.moveLeft ) this.object.translateX( - actualMoveSpeed );
+				if ( this.moveRight ) this.object.translateX( actualMoveSpeed );
+
+				if ( this.moveUp ) this.object.translateY( actualMoveSpeed );
+				if ( this.moveDown ) this.object.translateY( - actualMoveSpeed );
+
+				let actualLookSpeed = delta * this.lookSpeed;
+
+				if ( ! this.activeLook ) {
+
+					actualLookSpeed = 0;
+
+				}
+
+				let verticalLookRatio = 1;
+
+				if ( this.constrainVertical ) {
+
+					verticalLookRatio = Math.PI / ( this.verticalMax - this.verticalMin );
+
+				}
+
+				lon -= this.mouseX * actualLookSpeed;
+				if ( this.lookVertical ) lat -= this.mouseY * actualLookSpeed * verticalLookRatio;
+
+				lat = Math.max( - 85, Math.min( 85, lat ) );
+
+				let phi = three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.degToRad( 90 - lat );
+				const theta = three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.degToRad( lon );
+
+				if ( this.constrainVertical ) {
+
+					phi = three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.mapLinear( phi, 0, Math.PI, this.verticalMin, this.verticalMax );
+
+				}
+
+				const position = this.object.position;
+
+				targetPosition.setFromSphericalCoords( 1, phi, theta ).add( position );
+
+				this.object.lookAt( targetPosition );
+
+			};
+
+		}();
+
+		this.dispose = function () {
+
+			this.domElement.removeEventListener( 'contextmenu', contextmenu );
+			this.domElement.removeEventListener( 'mousedown', _onMouseDown );
+			this.domElement.removeEventListener( 'mousemove', _onMouseMove );
+			this.domElement.removeEventListener( 'mouseup', _onMouseUp );
+
+			window.removeEventListener( 'keydown', _onKeyDown );
+			window.removeEventListener( 'keyup', _onKeyUp );
+
+		};
+
+		const _onMouseMove = this.onMouseMove.bind( this );
+		const _onMouseDown = this.onMouseDown.bind( this );
+		const _onMouseUp = this.onMouseUp.bind( this );
+		const _onKeyDown = this.onKeyDown.bind( this );
+		const _onKeyUp = this.onKeyUp.bind( this );
+
+		this.domElement.addEventListener( 'contextmenu', contextmenu );
+		this.domElement.addEventListener( 'mousemove', _onMouseMove );
+		this.domElement.addEventListener( 'mousedown', _onMouseDown );
+		this.domElement.addEventListener( 'mouseup', _onMouseUp );
+
+		window.addEventListener( 'keydown', _onKeyDown );
+		window.addEventListener( 'keyup', _onKeyUp );
+
+		function setOrientation( controls ) {
+
+			const quaternion = controls.object.quaternion;
+
+			_lookDirection.set( 0, 0, - 1 ).applyQuaternion( quaternion );
+			_spherical.setFromVector3( _lookDirection );
+
+			lat = 90 - three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.radToDeg( _spherical.phi );
+			lon = three__WEBPACK_IMPORTED_MODULE_0__.MathUtils.radToDeg( _spherical.theta );
+
+		}
+
+		this.handleResize();
+
+		setOrientation( this );
+
+	}
+
+}
+
+function contextmenu( event ) {
+
+	event.preventDefault();
 
 }
 
