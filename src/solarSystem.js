@@ -2,6 +2,11 @@ import * as THREE from 'three';
 import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {FirstPersonControls} from 'three/examples/jsm/controls/FirstPersonControls.js';
 import AudioManager from './audioManager';
+
+const preaperRenderingArea = (params) => {
+  
+}
+
 export const buildSolarSystem = () =>
 {
     const out = document.querySelector('.WebGL_out')
@@ -16,6 +21,7 @@ export const buildSolarSystem = () =>
     const clock = new THREE.Clock();
     // FPPContrls.movementSpeed = 20;
     // FPPContrls.lookSpeed = .2;
+
     //load all textures
     const loader = new THREE.TextureLoader();
     const sunTexture = loader.load('/textures/2k_sun.jpg');
@@ -31,13 +37,14 @@ export const buildSolarSystem = () =>
     const neptuneTexture = loader.load('/textures/2k_neptune.jpg');
     
 
-    
+    //create sun
     const sunGeo  = new THREE.SphereGeometry(80);
-    const sunMat = new THREE.MeshStandardMaterial( { map: sunTexture } );
+    const sunMat = new THREE.MeshStandardMaterial( { map: sunTexture} );
     const sun = new THREE.Mesh( sunGeo, sunMat );
     sun.position.x = -30;
     scene.add( sun );
 
+    //create skybox
     const cubeLoader = new THREE.CubeTextureLoader();
     const bgTexture = cubeLoader.load([
       '/textures/2k_stars_milky_way_Right.bmp',
@@ -47,19 +54,28 @@ export const buildSolarSystem = () =>
       '/textures/2k_stars_milky_way_Front.bmp',
       '/textures/2k_stars_milky_way_Back.bmp',
     ]);
-
     scene.background = bgTexture;
+
     camera.position.z = 5;
     // FPPContrls.update(clock.getDelta());
-    const light = new THREE.AmbientLight(0xffffff,1);
-    scene.add(light);
-    scene.add(earth);
+    
+    //create temporary ambient light
+    const Plight = new THREE.PointLight(0xffffff,1, 12000);
+    const Dlight = new THREE.DirectionalLight(0xffffff,1);
+    const DlightHelp = new THREE.DirectionalLightHelper(Dlight, 50, 0xff00ff);
+    scene.add(Dlight);
+    scene.add(DlightHelp);
+    scene.add(Plight);
 
+    
+    //function to create celestial
     const createCelestial = (size, texture) => {
       const celestialGEO = new THREE.SphereGeometry(size);
       const celestialMAT = new THREE.MeshStandardMaterial({map: texture});
       return new THREE.Mesh(celestialGEO, celestialMAT);
     }
+
+    //create solar system planets and them to the scene
     const mercury = createCelestial(2.28, mercuryTexture);
     const venus = createCelestial(5.64, venusTexture);
     const earth = createCelestial(6, earthTexture);
@@ -71,12 +87,12 @@ export const buildSolarSystem = () =>
     const neptune = createCelestial(18, neptuneTexture);
     scene.add(mercury);
     scene.add(venus);
-    // scene.add(earth)
     scene.add(mars);
     scene.add(jupiter);
-    // scene.add(saturn);
     scene.add(uranus);
     scene.add(neptune);
+
+
     //create rings for saturn
     const saturnRingGEO = new THREE.RingBufferGeometry(3,100,64)
     let pos = saturnRingGEO.attributes.position;
@@ -91,17 +107,18 @@ export const buildSolarSystem = () =>
     saturnRingMESH.rotation.x = Math.PI /2;
     saturnRingMESH.rotation.y = Math.PI / 12;
     scene.add(saturnRingMESH);
-
+    //add the rings to Saturn
     const saturnGroup = new THREE.Group();
     saturnGroup.add(saturn);
     saturnGroup.add(saturnRingMESH);
     scene.add(saturnGroup);
 
-
+    //create group with Earth and moon
     const earthGroup = new THREE.Group();
     earthGroup.add(earth);
     earthGroup.add(earthMoon);
     scene.add(earthGroup);
+    //initial values for periods
     let periods = {
       pMer: 0,
       pVen: 0,
@@ -112,6 +129,7 @@ export const buildSolarSystem = () =>
       pUranus: 0,
       pNeptune: 0,
     };
+    //function to circular movement
     const circularMovement = (celestial, rotationPeriod = 0.001, distance, t) => {
       if(celestial === venus)
       {
@@ -124,6 +142,7 @@ export const buildSolarSystem = () =>
       celestial.position.x = distance * Math.cos(t)  - 30;
       celestial.position.z = distance * Math.sin(t) + 0;
     }
+    //check full movement around the circle and restore to 0
     const checkFullPeriod = () => {
       for (const key in periods) {
         if(periods[key] >= 6.28)
@@ -133,6 +152,7 @@ export const buildSolarSystem = () =>
       }
     }
     let t=0;
+    //loop fn
     const animate = function () {
       requestAnimationFrame( animate );
       if(t >= 6.28)
@@ -167,6 +187,7 @@ export const buildSolarSystem = () =>
         renderer.render( scene, camera );
     };
     animate();
+    //change aspect ratio after resizing the viewport
     window.addEventListener(
         'resize',
         function() {
@@ -177,6 +198,7 @@ export const buildSolarSystem = () =>
           FPPContrls.handleResize();
         },
         );
+    //for controls (use shift to "sprint")    
     window.addEventListener('keydown', e =>
     {
       switch (e.key)
@@ -195,6 +217,7 @@ export const buildSolarSystem = () =>
           break;
       }
     });
+    //apply sound effects
         const btn = document.querySelector('.audioBTN');
         const audioManager = new AudioManager('/sounds/ambient.mp3', '/sounds/impact.mp3');
         // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
