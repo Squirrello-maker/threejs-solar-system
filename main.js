@@ -67,6 +67,9 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
+var preaperRenderingArea = function preaperRenderingArea(params) {};
+
 var buildSolarSystem = function buildSolarSystem() {
   var out = document.querySelector('.WebGL_out');
   var scene = new three__WEBPACK_IMPORTED_MODULE_3__.Scene();
@@ -81,32 +84,38 @@ var buildSolarSystem = function buildSolarSystem() {
   //load all textures
 
   var loader = new three__WEBPACK_IMPORTED_MODULE_3__.TextureLoader();
-  var sunTexture = loader.load('/textures/2k_sun.jpg');
-  var mercuryTexture = loader.load('/textures/2k_mercury.jpg');
-  var venusTexture = loader.load('/textures/2k_venus_atmosphere.jpg');
-  var earthTexture = loader.load('/textures/2k_earth_daymap.jpg');
-  var earthMoonTexture = loader.load('/textures/2k_moon.jpg');
-  var marsTexture = loader.load('/textures/2k_mars.jpg');
-  var jupiterTexture = loader.load('/textures/2k_jupiter.jpg');
-  var saturnTexture = loader.load('/textures/2k_saturn.jpg');
-  var saturnRingsTexture = loader.load('/textures/rings2.png');
-  var uranusTexture = loader.load('/textures/2k_uranus.jpg');
-  var neptuneTexture = loader.load('/textures/2k_neptune.jpg');
+  var sunTexture = loader.load('../textures/2k_sun.jpg');
+  var mercuryTexture = loader.load('../textures/2k_mercury.jpg');
+  var venusTexture = loader.load('../textures/2k_venus_atmosphere.jpg');
+  var earthTexture = loader.load('../textures/2k_earth_daymap.jpg');
+  var earthMoonTexture = loader.load('../textures/2k_moon.jpg');
+  var marsTexture = loader.load('../textures/2k_mars.jpg');
+  var jupiterTexture = loader.load('../textures/2k_jupiter.jpg');
+  var saturnTexture = loader.load('../textures/2k_saturn.jpg');
+  var saturnRingsTexture = loader.load('../textures/rings2.png');
+  var uranusTexture = loader.load('../textures/2k_uranus.jpg');
+  var neptuneTexture = loader.load('../textures/2k_neptune.jpg'); //create sun
+
   var sunGeo = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(80);
   var sunMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
     map: sunTexture
   });
   var sun = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(sunGeo, sunMat);
   sun.position.x = -30;
-  scene.add(sun);
+  scene.add(sun); //create skybox
+
   var cubeLoader = new three__WEBPACK_IMPORTED_MODULE_3__.CubeTextureLoader();
-  var bgTexture = cubeLoader.load(['/textures/2k_stars_milky_way_Right.bmp', '/textures/2k_stars_milky_way_Left.bmp', '/textures/2k_stars_milky_way_Top.bmp', '/textures/2k_stars_milky_way_Bottom.bmp', '/textures/2k_stars_milky_way_Front.bmp', '/textures/2k_stars_milky_way_Back.bmp']);
+  var bgTexture = cubeLoader.load(['../textures/2k_stars_milky_way_Right.bmp', '../textures/2k_stars_milky_way_Left.bmp', '../textures/2k_stars_milky_way_Top.bmp', '../textures/2k_stars_milky_way_Bottom.bmp', '../textures/2k_stars_milky_way_Front.bmp', '../textures/2k_stars_milky_way_Back.bmp']);
   scene.background = bgTexture;
   camera.position.z = 5; // FPPContrls.update(clock.getDelta());
+  //create temporary ambient light
 
-  var light = new three__WEBPACK_IMPORTED_MODULE_3__.AmbientLight(0xffffff, 1);
-  scene.add(light);
-  scene.add(earth);
+  var Plight = new three__WEBPACK_IMPORTED_MODULE_3__.PointLight(0xffffff, 1, 12000);
+  var Dlight = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLight(0xffffff, 1);
+  var DlightHelp = new three__WEBPACK_IMPORTED_MODULE_3__.DirectionalLightHelper(Dlight, 50, 0xff00ff);
+  scene.add(Dlight);
+  scene.add(DlightHelp);
+  scene.add(Plight); //function to create celestial
 
   var createCelestial = function createCelestial(size, texture) {
     var celestialGEO = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(size);
@@ -114,7 +123,8 @@ var buildSolarSystem = function buildSolarSystem() {
       map: texture
     });
     return new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(celestialGEO, celestialMAT);
-  };
+  }; //create solar system planets and them to the scene
+
 
   var mercury = createCelestial(2.28, mercuryTexture);
   var venus = createCelestial(5.64, venusTexture);
@@ -126,11 +136,9 @@ var buildSolarSystem = function buildSolarSystem() {
   var uranus = createCelestial(24, uranusTexture);
   var neptune = createCelestial(18, neptuneTexture);
   scene.add(mercury);
-  scene.add(venus); // scene.add(earth)
-
+  scene.add(venus);
   scene.add(mars);
-  scene.add(jupiter); // scene.add(saturn);
-
+  scene.add(jupiter);
   scene.add(uranus);
   scene.add(neptune); //create rings for saturn
 
@@ -151,15 +159,18 @@ var buildSolarSystem = function buildSolarSystem() {
   var saturnRingMESH = new three__WEBPACK_IMPORTED_MODULE_3__.Mesh(saturnRingGEO, saturnRingMAT);
   saturnRingMESH.rotation.x = Math.PI / 2;
   saturnRingMESH.rotation.y = Math.PI / 12;
-  scene.add(saturnRingMESH);
+  scene.add(saturnRingMESH); //add the rings to Saturn
+
   var saturnGroup = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
   saturnGroup.add(saturn);
   saturnGroup.add(saturnRingMESH);
-  scene.add(saturnGroup);
+  scene.add(saturnGroup); //create group with Earth and moon
+
   var earthGroup = new three__WEBPACK_IMPORTED_MODULE_3__.Group();
   earthGroup.add(earth);
   earthGroup.add(earthMoon);
-  scene.add(earthGroup);
+  scene.add(earthGroup); //initial values for periods
+
   var periods = {
     pMer: 0,
     pVen: 0,
@@ -169,7 +180,7 @@ var buildSolarSystem = function buildSolarSystem() {
     pSaturn: 0,
     pUranus: 0,
     pNeptune: 0
-  };
+  }; //function to circular movement
 
   var circularMovement = function circularMovement(celestial) {
     var rotationPeriod = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0.001;
@@ -184,7 +195,8 @@ var buildSolarSystem = function buildSolarSystem() {
 
     celestial.position.x = distance * Math.cos(t) - 30;
     celestial.position.z = distance * Math.sin(t) + 0;
-  };
+  }; //check full movement around the circle and restore to 0
+
 
   var checkFullPeriod = function checkFullPeriod() {
     for (var key in periods) {
@@ -194,7 +206,7 @@ var buildSolarSystem = function buildSolarSystem() {
     }
   };
 
-  var t = 0;
+  var t = 0; //loop fn
 
   var animate = function animate() {
     requestAnimationFrame(animate);
@@ -231,14 +243,16 @@ var buildSolarSystem = function buildSolarSystem() {
     renderer.render(scene, camera);
   };
 
-  animate();
+  animate(); //change aspect ratio after resizing the viewport
+
   window.addEventListener('resize', function () {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.render(scene, camera);
     FPPContrls.handleResize();
-  });
+  }); //for controls (use shift to "sprint")    
+
   window.addEventListener('keydown', function (e) {
     switch (e.key) {
       case 'Shift':
@@ -252,7 +266,8 @@ var buildSolarSystem = function buildSolarSystem() {
         FPPContrls.movementSpeed = 20;
         break;
     }
-  });
+  }); //apply sound effects
+
   var btn = document.querySelector('.audioBTN');
   var audioManager = new _audioManager__WEBPACK_IMPORTED_MODULE_2__["default"]('/sounds/ambient.mp3', '/sounds/impact.mp3'); // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
 
