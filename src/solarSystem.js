@@ -16,11 +16,11 @@ export const buildSolarSystem = () =>
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     out.appendChild( renderer.domElement );
-    const controls = new OrbitControls(camera, renderer.domElement);
-    // const FPPContrls = new FirstPersonControls(camera,renderer.domElement);
+    // const controls = new OrbitControls(camera, renderer.domElement);
+    const FPPContrls = new FirstPersonControls(camera,renderer.domElement);
     const clock = new THREE.Clock();
-    // FPPContrls.movementSpeed = 20;
-    // FPPContrls.lookSpeed = .2;
+    FPPContrls.movementSpeed = 20;
+    FPPContrls.lookSpeed = .2;
 
     //load all textures
     const loader = new THREE.TextureLoader();
@@ -39,7 +39,7 @@ export const buildSolarSystem = () =>
 
     //create sun
     const sunGeo  = new THREE.SphereGeometry(80);
-    const sunMat = new THREE.MeshStandardMaterial( { map: sunTexture} );
+    const sunMat = new THREE.MeshBasicMaterial( { map: sunTexture, emmisive: 0xe8aa54} );
     const sun = new THREE.Mesh( sunGeo, sunMat );
     sun.position.x = -30;
     scene.add( sun );
@@ -57,14 +57,10 @@ export const buildSolarSystem = () =>
     scene.background = bgTexture;
 
     camera.position.z = 5;
-    // FPPContrls.update(clock.getDelta());
+    camera.position.x = 80;
     
     //create temporary ambient light
     const Plight = new THREE.PointLight(0xffffff,1, 12000);
-    const Dlight = new THREE.DirectionalLight(0xffffff,1);
-    const DlightHelp = new THREE.DirectionalLightHelper(Dlight, 50, 0xff00ff);
-    scene.add(Dlight);
-    scene.add(DlightHelp);
     scene.add(Plight);
 
     
@@ -102,7 +98,7 @@ export const buildSolarSystem = () =>
       v3.fromBufferAttribute(pos, i);
       saturnRingGEO.attributes.uv.setXY(i, v3.length() < 4 ? 0 : 1, 1)
     }
-    const saturnRingMAT = new THREE.MeshStandardMaterial({map: saturnRingsTexture, transparent:true, side: THREE.DoubleSide});
+    const saturnRingMAT = new THREE.MeshBasicMaterial({map: saturnRingsTexture, transparent:true, side: THREE.DoubleSide});
     const saturnRingMESH = new THREE.Mesh(saturnRingGEO, saturnRingMAT);
     saturnRingMESH.rotation.x = Math.PI /2;
     saturnRingMESH.rotation.y = Math.PI / 12;
@@ -119,15 +115,30 @@ export const buildSolarSystem = () =>
     earthGroup.add(earthMoon);
     scene.add(earthGroup);
     //initial values for periods
-    let periods = {
-      pMer: 0,
-      pVen: 0,
-      pEarth: 0,
-      pMars: 0,
-      pJupiter: 0,
-      pSaturn: 0,
-      pUranus: 0,
-      pNeptune: 0,
+    const periods = {
+      circulationPeriods:
+      {
+        pMer: 0,
+        pVen: 0,
+        pEarth: 0,
+        pMars: 0,
+        pJupiter: 0,
+        pSaturn: 0,
+        pUranus: 0,
+        pNeptune: 0,
+      },
+      rotationPeriods:
+      {
+        pMer: 0.00035,
+        pVen: 0.00005,
+        pEarth: 0.001,
+        pMars: 0.00095,
+        pJupiter: 0.002,
+        pSaturn: 0.0015,
+        pUranus: 0.0012,
+        pNeptune: 0.0013,
+      }
+      
     };
     //function to circular movement
     const circularMovement = (celestial, rotationPeriod = 0.001, distance, t) => {
@@ -143,11 +154,11 @@ export const buildSolarSystem = () =>
       celestial.position.z = distance * Math.sin(t) + 0;
     }
     //check full movement around the circle and restore to 0
-    const checkFullPeriod = () => {
-      for (const key in periods) {
-        if(periods[key] >= 6.28)
+    const checkFullPeriod = periodsObj => {
+      for (const key in periodsObj) {
+        if(periodsObj[key] >= 6.28)
         {
-          periods[key] = 0;
+          periodsObj[key] = 0;
         }
       }
     }
@@ -159,31 +170,29 @@ export const buildSolarSystem = () =>
       {
         t = 0;
       }
-      checkFullPeriod();
+      checkFullPeriod(periods.circulationPeriods);
       saturnRingMESH.rotation.z += 0.1
       t += 0.01;
-      periods.pMer+=0.002;
-      periods.pVen += 0.000584;
-      periods.pEarth +=0.000365; //1 year
-      periods.pMars +=0.000182;
-      periods.pJupiter += 0.000047;
-      periods.pSaturn +=0.000022;
-      periods.pUranus +=0.00001;
-      periods.pNeptune +=0.000001;
+      periods.circulationPeriods.pMer+=0.002;
+      periods.circulationPeriods.pVen += 0.000584;
+      periods.circulationPeriods.pEarth +=0.000365; //1 year
+      periods.circulationPeriods.pMars +=0.000182;
+      periods.circulationPeriods.pJupiter += 0.000047;
+      periods.circulationPeriods.pSaturn +=0.000022;
+      periods.circulationPeriods.pUranus +=0.00001;
+      periods.circulationPeriods.pNeptune +=0.000001;
         sun.rotation.y += 0.001;
-        // FPPContrls.update(clock.getDelta());
-        controls.update();
-        circularMovement(mercury, 0.00085, 150, periods.pMer);
-        circularMovement(venus, 0.00085, 280, periods.pVen);
-        
-      earthMoon.position.x = 10 * Math.cos(t)  + 0;
-      earthMoon.position.z = 10 * Math.sin(t) + 0;
-        circularMovement(earthGroup, 0.001, 390, periods.pEarth);
-        circularMovement(mars, 0.00085, 585, periods.pMars);
-        circularMovement(jupiter, 0.00085, 1950, periods.pJupiter);
-        circularMovement(saturnGroup, 0.00085, 3705, periods.pSaturn);
-        circularMovement(uranus, 0.00085, 7410, periods.pUranus);
-        circularMovement(neptune, 0.00085, 11700, periods.pNeptune);
+        FPPContrls.update(clock.getDelta());
+        circularMovement(mercury, periods.rotationPeriods.pMer, 150, periods.circulationPeriods.pMer);
+        circularMovement(venus,  periods.rotationPeriods.pVen, 280, periods.circulationPeriods.pVen);
+        circularMovement(earthGroup,  periods.rotationPeriods.pEarth, 390, periods.circulationPeriods.pEarth);
+        circularMovement(mars,  periods.rotationPeriods.pMars, 585, periods.circulationPeriods.pMars);
+        circularMovement(jupiter,  periods.rotationPeriods.pJupiter, 1950, periods.circulationPeriods.pJupiter);
+        circularMovement(saturnGroup,  periods.rotationPeriods.pSaturn, 3705, periods.circulationPeriods.pSaturn);
+        circularMovement(uranus,  periods.rotationPeriods.pUranus, 7410, periods.circulationPeriods.pUranus);
+        circularMovement(neptune,  periods.rotationPeriods.pNeptune, 11700, periods.circulationPeriods.pNeptune);
+        earthMoon.position.x = 10 * Math.cos(t)  + 0;
+        earthMoon.position.z = 10 * Math.sin(t) + 0;
         renderer.render( scene, camera );
     };
     animate();
@@ -219,7 +228,7 @@ export const buildSolarSystem = () =>
     });
     //apply sound effects
         const btn = document.querySelector('.audioBTN');
-        const audioManager = new AudioManager('/sounds/ambient.mp3', '/sounds/impact.mp3');
+        const audioManager = new AudioManager('./sounds/ambient.mp3', './sounds/impact.mp3');
         // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
         btn.addEventListener('click', audioManager.playInteraction.bind(audioManager));
 
