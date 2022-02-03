@@ -84,17 +84,17 @@ var buildSolarSystem = function buildSolarSystem() {
   //load all textures
 
   var loader = new three__WEBPACK_IMPORTED_MODULE_3__.TextureLoader();
-  var sunTexture = loader.load('../textures/2k_sun.jpg');
-  var mercuryTexture = loader.load('../textures/2k_mercury.jpg');
-  var venusTexture = loader.load('../textures/2k_venus_atmosphere.jpg');
-  var earthTexture = loader.load('../textures/2k_earth_daymap.jpg');
-  var earthMoonTexture = loader.load('../textures/2k_moon.jpg');
-  var marsTexture = loader.load('../textures/2k_mars.jpg');
-  var jupiterTexture = loader.load('../textures/2k_jupiter.jpg');
-  var saturnTexture = loader.load('../textures/2k_saturn.jpg');
-  var saturnRingsTexture = loader.load('../textures/rings2.png');
-  var uranusTexture = loader.load('../textures/2k_uranus.jpg');
-  var neptuneTexture = loader.load('../textures/2k_neptune.jpg'); //create sun
+  var sunTexture = loader.load('./textures/2k_sun.jpg');
+  var mercuryTexture = loader.load('./textures/2k_mercury.jpg');
+  var venusTexture = loader.load('./textures/2k_venus_atmosphere.jpg');
+  var earthTexture = loader.load('./textures/2k_earth_daymap.jpg');
+  var earthMoonTexture = loader.load('./textures/2k_moon.jpg');
+  var marsTexture = loader.load('./textures/2k_mars.jpg');
+  var jupiterTexture = loader.load('./textures/2k_jupiter.jpg');
+  var saturnTexture = loader.load('./textures/2k_saturn.jpg');
+  var saturnRingsTexture = loader.load('./textures/rings2.png');
+  var uranusTexture = loader.load('./textures/2k_uranus.jpg');
+  var neptuneTexture = loader.load('./textures/2k_neptune.jpg'); //create sun
 
   var sunGeo = new three__WEBPACK_IMPORTED_MODULE_3__.SphereGeometry(80);
   var sunMat = new three__WEBPACK_IMPORTED_MODULE_3__.MeshStandardMaterial({
@@ -105,7 +105,7 @@ var buildSolarSystem = function buildSolarSystem() {
   scene.add(sun); //create skybox
 
   var cubeLoader = new three__WEBPACK_IMPORTED_MODULE_3__.CubeTextureLoader();
-  var bgTexture = cubeLoader.load(['../textures/2k_stars_milky_way_Right.bmp', '../textures/2k_stars_milky_way_Left.bmp', '../textures/2k_stars_milky_way_Top.bmp', '../textures/2k_stars_milky_way_Bottom.bmp', '../textures/2k_stars_milky_way_Front.bmp', '../textures/2k_stars_milky_way_Back.bmp']);
+  var bgTexture = cubeLoader.load(['./textures/2k_stars_milky_way_Right.bmp', './textures/2k_stars_milky_way_Left.bmp', './textures/2k_stars_milky_way_Top.bmp', './textures/2k_stars_milky_way_Bottom.bmp', './textures/2k_stars_milky_way_Front.bmp', './textures/2k_stars_milky_way_Back.bmp']);
   scene.background = bgTexture;
   camera.position.z = 5; // FPPContrls.update(clock.getDelta());
   //create temporary ambient light

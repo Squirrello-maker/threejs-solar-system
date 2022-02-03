@@ -24,17 +24,17 @@ export const buildSolarSystem = () =>
 
     //load all textures
     const loader = new THREE.TextureLoader();
-    const sunTexture = loader.load('../textures/2k_sun.jpg');
-    const mercuryTexture = loader.load('../textures/2k_mercury.jpg');
-    const venusTexture = loader.load('../textures/2k_venus_atmosphere.jpg');
-    const earthTexture = loader.load('../textures/2k_earth_daymap.jpg');
-    const earthMoonTexture = loader.load('../textures/2k_moon.jpg')
-    const marsTexture = loader.load('../textures/2k_mars.jpg');
-    const jupiterTexture = loader.load('../textures/2k_jupiter.jpg');
-    const saturnTexture = loader.load('../textures/2k_saturn.jpg');
-    const saturnRingsTexture = loader.load('../textures/rings2.png');
-    const uranusTexture = loader.load('../textures/2k_uranus.jpg');
-    const neptuneTexture = loader.load('../textures/2k_neptune.jpg');
+    const sunTexture = loader.load('./textures/2k_sun.jpg');
+    const mercuryTexture = loader.load('./textures/2k_mercury.jpg');
+    const venusTexture = loader.load('./textures/2k_venus_atmosphere.jpg');
+    const earthTexture = loader.load('./textures/2k_earth_daymap.jpg');
+    const earthMoonTexture = loader.load('./textures/2k_moon.jpg')
+    const marsTexture = loader.load('./textures/2k_mars.jpg');
+    const jupiterTexture = loader.load('./textures/2k_jupiter.jpg');
+    const saturnTexture = loader.load('./textures/2k_saturn.jpg');
+    const saturnRingsTexture = loader.load('./textures/rings2.png');
+    const uranusTexture = loader.load('./textures/2k_uranus.jpg');
+    const neptuneTexture = loader.load('./textures/2k_neptune.jpg');
     
 
     //create sun
@@ -47,12 +47,12 @@ export const buildSolarSystem = () =>
     //create skybox
     const cubeLoader = new THREE.CubeTextureLoader();
     const bgTexture = cubeLoader.load([
-      '../textures/2k_stars_milky_way_Right.bmp',
-      '../textures/2k_stars_milky_way_Left.bmp',
-      '../textures/2k_stars_milky_way_Top.bmp',
-      '../textures/2k_stars_milky_way_Bottom.bmp',
-      '../textures/2k_stars_milky_way_Front.bmp',
-      '../textures/2k_stars_milky_way_Back.bmp',
+      './textures/2k_stars_milky_way_Right.bmp',
+      './textures/2k_stars_milky_way_Left.bmp',
+      './textures/2k_stars_milky_way_Top.bmp',
+      './textures/2k_stars_milky_way_Bottom.bmp',
+      './textures/2k_stars_milky_way_Front.bmp',
+      './textures/2k_stars_milky_way_Back.bmp',
     ]);
     scene.background = bgTexture;
 
