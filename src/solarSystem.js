@@ -1,11 +1,6 @@
 import * as THREE from 'three';
-import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import {FirstPersonControls} from 'three/examples/jsm/controls/FirstPersonControls.js';
 import AudioManager from './audioManager';
-
-const preaperRenderingArea = (params) => {
-  
-}
 
 export const buildSolarSystem = () =>
 {
@@ -15,6 +10,8 @@ export const buildSolarSystem = () =>
     
     const renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     out.appendChild( renderer.domElement );
     // const controls = new OrbitControls(camera, renderer.domElement);
     const FPPContrls = new FirstPersonControls(camera,renderer.domElement);
@@ -59,8 +56,9 @@ export const buildSolarSystem = () =>
     camera.position.z = 5;
     camera.position.x = 80;
     
-    //create temporary ambient light
+    //create light
     const Plight = new THREE.PointLight(0xffffff,1, 12000);
+    Plight.castShadow = true;
     scene.add(Plight);
 
     
@@ -88,7 +86,10 @@ export const buildSolarSystem = () =>
     scene.add(uranus);
     scene.add(neptune);
 
-
+    earth.receiveShadow = true;
+    earth.castShadow = true;
+    earthMoon.receiveShadow = true;
+    earthMoon.castShadow = true;
     //create rings for saturn
     const saturnRingGEO = new THREE.RingBufferGeometry(3,100,64)
     let pos = saturnRingGEO.attributes.position;
@@ -108,7 +109,7 @@ export const buildSolarSystem = () =>
     saturnGroup.add(saturn);
     saturnGroup.add(saturnRingMESH);
     scene.add(saturnGroup);
-
+    
     //create group with Earth and moon
     const earthGroup = new THREE.Group();
     earthGroup.add(earth);
@@ -196,6 +197,9 @@ export const buildSolarSystem = () =>
         renderer.render( scene, camera );
     };
     animate();
+    const getPosition = (celPos) => {
+      return celPos.position;
+    }
     //change aspect ratio after resizing the viewport
     window.addEventListener(
         'resize',
@@ -213,7 +217,7 @@ export const buildSolarSystem = () =>
       switch (e.key)
       {
         case 'Shift':
-          FPPContrls.movementSpeed = 50;
+          FPPContrls.movementSpeed = 100;
           break;
       }
     });
@@ -226,11 +230,15 @@ export const buildSolarSystem = () =>
           break;
       }
     });
-    //apply sound effects
-        const btn = document.querySelector('.audioBTN');
-        const audioManager = new AudioManager('./sounds/ambient.mp3', './sounds/impact.mp3');
-        // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
-        btn.addEventListener('click', audioManager.playInteraction.bind(audioManager));
+    //apply sound effects (for future)
+        // const btn = document.querySelector('.fastBTN');
+        // // const audioManager = new AudioManager('./sounds/ambient.mp3', './sounds/impact.mp3');
+        // // // out.addEventListener('mouseover', audioManager.playAmbient.bind(audioManager));
+        // // btn.addEventListener('click', audioManager.playInteraction.bind(audioManager));
+        // btn.addEventListener('click', () =>{
+
+        //   // camera.position.set(mercury.position.x, mercury.position.y, mercury.position.z);
+        // });
 
 
 }

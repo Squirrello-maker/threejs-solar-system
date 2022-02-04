@@ -17,23 +17,24 @@
         {
             position: relative;
         }
-        .audioBTN
+        .instuctions
         {
             position: absolute;
-            top: 0;
-            left: 0;
-            z-index: 100;
-            background-color: #fff;
-            min-height: 50px;
-            min-width: 50px;
-            cursor: pointer;
-            
+            top: 95%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            color: #fff;
+        }
+        .instuctions > span 
+        {
+            margin: 0 10px;
+            color: rgb(240, 236, 46);
         }
     </style>
 </head>
 <body>
-   <section class="WebGL_out"></section>
-   <div class="audioBTN">
-   </div>
+   <section class="WebGL_out">
+       <p class="instuctions"><span class="highlight">W A S D |</span>Ruch, <span class="highlight">R F |</span>Wznoszenie, opadanie <span class="highlight">SHIFT |</span>Szybszy ruch</p>
+   </section>
 </body>
 </html>

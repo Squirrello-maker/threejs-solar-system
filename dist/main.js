@@ -67,15 +67,14 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
-var preaperRenderingArea = function preaperRenderingArea(params) {};
-
 var buildSolarSystem = function buildSolarSystem() {
   var out = document.querySelector('.WebGL_out');
   var scene = new three__WEBPACK_IMPORTED_MODULE_3__.Scene();
   var camera = new three__WEBPACK_IMPORTED_MODULE_3__.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 12000);
   var renderer = new three__WEBPACK_IMPORTED_MODULE_3__.WebGLRenderer();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = three__WEBPACK_IMPORTED_MODULE_3__.PCFSoftShadowMap;
   out.appendChild(renderer.domElement); // const controls = new OrbitControls(camera, renderer.domElement);
 
   var FPPContrls = new three_examples_jsm_controls_FirstPersonControls_js__WEBPACK_IMPORTED_MODULE_1__.FirstPersonControls(camera, renderer.domElement);
@@ -109,9 +108,10 @@ var buildSolarSystem = function buildSolarSystem() {
   var bgTexture = cubeLoader.load(['./textures/2k_stars_milky_way_Right.bmp', './textures/2k_stars_milky_way_Left.bmp', './textures/2k_stars_milky_way_Top.bmp', './textures/2k_stars_milky_way_Bottom.bmp', './textures/2k_stars_milky_way_Front.bmp', './textures/2k_stars_milky_way_Back.bmp']);
   scene.background = bgTexture;
   camera.position.z = 5;
-  camera.position.x = 80; //create temporary ambient light
+  camera.position.x = 80; //create light
 
   var Plight = new three__WEBPACK_IMPORTED_MODULE_3__.PointLight(0xffffff, 1, 12000);
+  Plight.castShadow = true;
   scene.add(Plight); //function to create celestial
 
   var createCelestial = function createCelestial(size, texture) {
@@ -137,7 +137,11 @@ var buildSolarSystem = function buildSolarSystem() {
   scene.add(mars);
   scene.add(jupiter);
   scene.add(uranus);
-  scene.add(neptune); //create rings for saturn
+  scene.add(neptune);
+  earth.receiveShadow = true;
+  earth.castShadow = true;
+  earthMoon.receiveShadow = true;
+  earthMoon.castShadow = true; //create rings for saturn
 
   var saturnRingGEO = new three__WEBPACK_IMPORTED_MODULE_3__.RingBufferGeometry(3, 100, 64);
   var pos = saturnRingGEO.attributes.position;
